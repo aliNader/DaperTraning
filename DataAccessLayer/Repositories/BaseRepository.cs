@@ -5,13 +5,17 @@ using System.Data;
 using System.Reflection;
 using Dapper;
 using DataAccessLayer.Interfaces;
+using System.Configuration;
 
 namespace DapperGenericRepository.Repositories
 {
     public abstract class BaseRepository<T>: IRepository<T> where T : class, IEntity
     {
-        protected string connectionString = @"Data Source=.;Initial Catalog=School; Integrated Security=true";
-
+        protected string connectionString = "";
+        public BaseRepository()
+        {
+           connectionString = ConfigurationManager.ConnectionStrings["SchoolConnectionString"]?.ConnectionString;
+        }
         public virtual void Insert(T entity)
         {
             var columns = GetColumns();
@@ -48,7 +52,7 @@ namespace DapperGenericRepository.Repositories
             using (var connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                connection.Execute(query, entity, commandType: CommandType.StoredProcedure);
+                connection.Execute(query, entity);
             }
         }
 
